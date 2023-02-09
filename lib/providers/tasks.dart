@@ -10,31 +10,37 @@ class Tasks extends ChangeNotifier {
   int sort = 0;
   int isCompleted = 0;
 
+  static const orderByDefault = '${TaskFields.id} ASC';
+  static const orderByname = '${TaskFields.name} ASC';
+  static const orderByPriority = '${TaskFields.priority} DESC';
+  static const orderByNamePriority = '${TaskFields.name} ASC, ${TaskFields.priority} DESC';
+  String orderBy = '';
+
   Future<void> addTask({required Task task}) async {
     await TasksDatabase.instance.create(task);
 
-    refreshBySort();
+    refreshTasks();
     notifyListeners();
   }
 
   Future<void> updateTask({required Task task}) async {
     await TasksDatabase.instance.update(task);
 
-    refreshBySort();
+    refreshTasks();
     notifyListeners();
   }
 
   Future<void> deleteTask({required int id}) async {
     await TasksDatabase.instance.delete(id);
 
-    refreshBySort();
+    refreshTasks();
     notifyListeners();
   }
 
   void completeTask({required Task task}) async {
     await TasksDatabase.instance.update(task);
 
-    refreshBySort();
+    refreshTasks();
     notifyListeners();
   }
 
@@ -47,30 +53,21 @@ class Tasks extends ChangeNotifier {
   }
 
   void refreshTasks() async { // SORT BY DEFAULT
-    final data = await TasksDatabase.instance.readAllTasks(isCompleted);
+    setOrderBy();
+    final data = await TasksDatabase.instance.readAllTasks(orderBy, isCompleted);
     _tasks = data;
     notifyListeners();
   }
-
-  void sortByName() async { // SORT BY NAME
-    final data = await TasksDatabase.instance.sortByName(isCompleted);
-    _tasks = data;
-    notifyListeners();
-  }
-
-  void sortByPriority() async { // SORT BY PRIORITY
-    final data = await TasksDatabase.instance.sortByPriority(isCompleted);
-    _tasks = data;
-    notifyListeners();
-  }
-
-  void refreshBySort() {
+  
+  void setOrderBy() {
     if (sort == 0) {
-      refreshTasks();
+      orderBy = orderByDefault;
     } else if (sort == 1) {
-      sortByName();
+      orderBy = orderByname;
     } else if (sort == 2) {
-      sortByPriority();
+      orderBy = orderByPriority;
+    } else if (sort == 3) {
+      orderBy = orderByNamePriority;
     }
   }
 

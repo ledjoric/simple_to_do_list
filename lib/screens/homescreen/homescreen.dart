@@ -35,9 +35,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          tasksData.isCompleted == 0 ? 'TO-DO LIST' : 'COMPLETED TASKS',
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        title: Row(
+          children: [
+            Text(
+              tasksData.isCompleted == 0 ? 'TO-DO LIST' : 'COMPLETED TASKS',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              ' : ${tasksData.tasks.length}',
+              style: TextStyle(color: Colors.grey[700]),
+            )
+          ],
         ),
         actions: [
           Tooltip(
@@ -50,15 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
               iconSize: 30,
               onPressed: () {
                 tasksData.isCompleted = tasksData.isCompleted == 0 ? 1 : 0;
-
-                if (tasksData.sort == 0) {
-                  tasksData.refreshTasks();
-                } else if (tasksData.sort == 1) {
-                  tasksData.sortByName();
-                } else if (tasksData.sort == 2) {
-                  tasksData.sortByPriority();
-                }
-
+                tasksData.refreshTasks();
                 setState(() {
                   isVisible = !isVisible;
                 });
@@ -66,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           Tooltip(
-            message: 'Sort Tasks',
+            message: 'Sort Task',
             child: PopupMenuButton(
               icon: const Icon(Icons.sort_rounded),
               iconSize: 30,
@@ -80,15 +80,13 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               onSelected: (value) {
                 if (value == 'Default') {
-                  tasksData.refreshTasks();
                   tasksData.sort = 0;
                 } else if (value == 'Name') {
-                  tasksData.sortByName();
                   tasksData.sort = 1;
                 } else if (value == 'Priority') {
-                  tasksData.sortByPriority();
                   tasksData.sort = 2;
                 }
+                tasksData.refreshTasks();
               },
             ),
           ),
@@ -106,65 +104,80 @@ class _HomeScreenState extends State<HomeScreen> {
           child: const Icon(Icons.add),
         ),
       ),
-      body: ListView.builder(
-        itemCount: tasksData.tasks.length,
-        itemBuilder: (context, index) {
-          final task = tasksData.tasks.elementAt(index);
-          return Card(
-            color: task.priority == 0
-                ? Colors.blue[600]
-                : task.priority == 1
-                    ? Colors.amber[600]
-                    : Colors.red[600],
-            child: ListTile(
-              leading: Checkbox(
-                value: task.isCompleted,
-                onChanged: (value) {
-                  tasksData.completeTask(task: task.copy(isCompleted: value));
+      body: Center(
+        child: tasksData.tasks.isEmpty
+            ? Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                  tasksData.isCompleted == 0
+                      ? 'Ready to get started?\nAdd a task to your to-do list.'
+                      : 'Your to-do list is waiting for you.\nComplete some tasks and see them here.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+                ),
+            )
+            : ListView.builder(
+                itemCount: tasksData.tasks.length,
+                itemBuilder: (context, index) {
+                  final task = tasksData.tasks.elementAt(index);
+                  return Card(
+                    color: task.priority == 0
+                        ? Colors.blue[600]
+                        : task.priority == 1
+                            ? Colors.amber[600]
+                            : Colors.red[600],
+                    child: ListTile(
+                      leading: Checkbox(
+                        value: task.isCompleted,
+                        onChanged: (value) {
+                          tasksData.completeTask(
+                              task: task.copy(isCompleted: value));
+                        },
+                      ),
+                      title: Text(task.name),
+                      subtitle:
+                          Text(task.note != '' ? task.note : 'Add note...'),
+                      trailing: Wrap(
+                        children: [
+                          Tooltip(
+                            message: 'Edit Task',
+                            child: IconButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => EditTask(
+                                    task: Task(
+                                        id: task.id,
+                                        name: task.name,
+                                        note: task.note,
+                                        isCompleted: task.isCompleted,
+                                        priority: task.priority),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.edit_rounded),
+                            ),
+                          ),
+                          Tooltip(
+                            message: 'Delete Task',
+                            child: IconButton(
+                              onPressed: () {
+                                // DELETE TASK
+                                showDialog(
+                                  context: context,
+                                  builder: (context) =>
+                                      ConfirmDeleteTask(id: task.id ?? 0),
+                                );
+                              },
+                              icon: const Icon(Icons.delete_rounded),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 },
               ),
-              title: Text(task.name),
-              subtitle: Text(task.note != '' ? task.note : 'Add note...'),
-              trailing: Wrap(
-                children: [
-                  Tooltip(
-                    message: 'Edit Task',
-                    child: IconButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => EditTask(
-                            task: Task(
-                                id: task.id,
-                                name: task.name,
-                                note: task.note,
-                                isCompleted: task.isCompleted,
-                                priority: task.priority),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.edit_rounded),
-                    ),
-                  ),
-                  Tooltip(
-                    message: 'Delete Task',
-                    child: IconButton(
-                      onPressed: () {
-                        // DELETE TASK
-                        showDialog(
-                          context: context,
-                          builder: (context) =>
-                              ConfirmDeleteTask(id: task.id ?? 0),
-                        );
-                      },
-                      icon: const Icon(Icons.delete_rounded),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
       ),
     );
   }

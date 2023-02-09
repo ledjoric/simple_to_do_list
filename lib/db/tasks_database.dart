@@ -59,32 +59,10 @@ class TasksDatabase {
     }
   }
 
-  Future<List<Task>> readAllTasks(int isCompleted) async {
+  Future<List<Task>> readAllTasks(String orderBy, int isCompleted) async {
     final db = await instance.database;
 
-    const orderBy = '${TaskFields.id} ASC';
-    final completed = '${TaskFields.isCompleted} = $isCompleted';
-    final result =
-        await db.query(tableTasks, orderBy: orderBy, where: completed);
-
-    return result.map((json) => Task.fromJson(json)).toList();
-  }
-
-  Future<List<Task>> sortByName(int isCompleted) async {
-    final db = await instance.database;
-
-    const orderBy = '${TaskFields.name} ASC';
-    final completed = '${TaskFields.isCompleted} = $isCompleted';
-    final result =
-        await db.query(tableTasks, orderBy: orderBy, where: completed);
-
-    return result.map((json) => Task.fromJson(json)).toList();
-  }
-
-  Future<List<Task>> sortByPriority(int isCompleted) async {
-    final db = await instance.database;
-
-    const orderBy = '${TaskFields.priority} DESC';
+    //const orderBy = '${TaskFields.id} ASC';
     final completed = '${TaskFields.isCompleted} = $isCompleted';
     final result =
         await db.query(tableTasks, orderBy: orderBy, where: completed);
