@@ -11,8 +11,6 @@ import 'package:to_do_list/screens/homescreen/edit_task.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
-  //const HomeScreen({super.key});
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -107,15 +105,15 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Center(
         child: tasksData.tasks.isEmpty
             ? Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
                   tasksData.isCompleted == 0
                       ? 'Ready to get started?\nAdd a task to your to-do list.'
                       : 'Your to-do list is waiting for you.\nComplete some tasks and see them here.',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 18, color: Colors.grey[700]),
                 ),
-            )
+              )
             : ListView.builder(
                 itemCount: tasksData.tasks.length,
                 itemBuilder: (context, index) {

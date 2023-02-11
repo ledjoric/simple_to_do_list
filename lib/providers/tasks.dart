@@ -13,7 +13,8 @@ class Tasks extends ChangeNotifier {
   static const orderByDefault = '${TaskFields.id} ASC';
   static const orderByname = '${TaskFields.name} ASC';
   static const orderByPriority = '${TaskFields.priority} DESC';
-  static const orderByNamePriority = '${TaskFields.name} ASC, ${TaskFields.priority} DESC';
+  static const orderByNamePriority =
+      '${TaskFields.name} ASC, ${TaskFields.priority} DESC';
   String orderBy = '';
 
   Future<void> addTask({required Task task}) async {
@@ -52,13 +53,14 @@ class Tasks extends ChangeNotifier {
     notifyListeners();
   }
 
-  void refreshTasks() async { // SORT BY DEFAULT
+  void refreshTasks() async {
     setOrderBy();
-    final data = await TasksDatabase.instance.readAllTasks(orderBy, isCompleted);
+    final data =
+        await TasksDatabase.instance.readAllTasks(orderBy, isCompleted);
     _tasks = data;
     notifyListeners();
   }
-  
+
   void setOrderBy() {
     if (sort == 0) {
       orderBy = orderByDefault;
